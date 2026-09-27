@@ -1,0 +1,612 @@
+{
+  "graph": {
+    "start": "classify",
+    "nodes": [
+      {
+        "name": "classify",
+        "description": "Ask the model what kind of ticket this is",
+        "requiresApproval": false
+      },
+      {
+        "name": "lookup_order",
+        "description": "Fetch the order the ticket refers to",
+        "requiresApproval": false
+      },
+      {
+        "name": "issue_refund",
+        "description": "Irreversible. Held until a human approves.",
+        "requiresApproval": true
+      },
+      {
+        "name": "notify",
+        "description": "Tell the customer what happened",
+        "requiresApproval": false
+      },
+      {
+        "name": "decline",
+        "description": "Close the ticket without refunding",
+        "requiresApproval": false
+      }
+    ]
+  },
+  "runs": [
+    {
+      "runId": "ticket-3",
+      "status": "finished",
+      "completed": ["classify", "lookup_order", "issue_refund", "notify"],
+      "nextNode": "__end__",
+      "state": {
+        "ticket": "I was charged twice, please refund",
+        "category": "refund_request",
+        "confidence": 0.9682,
+        "amount_usd": 240,
+        "order": {
+          "order_id": "A-88213",
+          "paid": true
+        },
+        "refund": {
+          "receipt": "rf_9940809",
+          "status": "settled"
+        },
+        "notified": true
+      },
+      "events": [
+        {
+          "seq": 27,
+          "type": "run_started",
+          "node": null,
+          "payload": {
+            "input": {
+              "ticket": "I was charged twice, please refund"
+            }
+          },
+          "at": 1786609810.7491512
+        },
+        {
+          "seq": 28,
+          "type": "step_started",
+          "node": "classify",
+          "payload": {},
+          "at": 1786609810.7730834
+        },
+        {
+          "seq": 29,
+          "type": "effect",
+          "node": "classify",
+          "payload": {
+            "index": 0,
+            "label": "model:classify",
+            "result": {
+              "category": "refund_request",
+              "confidence": 0.9682,
+              "amount_usd": 240
+            }
+          },
+          "at": 1786609810.776087
+        },
+        {
+          "seq": 30,
+          "type": "step_finished",
+          "node": "classify",
+          "payload": {
+            "patch": {
+              "category": "refund_request",
+              "confidence": 0.9682,
+              "amount_usd": 240
+            }
+          },
+          "at": 1786609810.7790833
+        },
+        {
+          "seq": 31,
+          "type": "step_started",
+          "node": "lookup_order",
+          "payload": {},
+          "at": 1786609810.781083
+        },
+        {
+          "seq": 32,
+          "type": "effect",
+          "node": "lookup_order",
+          "payload": {
+            "index": 0,
+            "label": "db:lookup_order",
+            "result": {
+              "order_id": "A-88213",
+              "paid": true
+            }
+          },
+          "at": 1786609810.7840831
+        },
+        {
+          "seq": 33,
+          "type": "step_finished",
+          "node": "lookup_order",
+          "payload": {
+            "patch": {
+              "order": {
+                "order_id": "A-88213",
+                "paid": true
+              }
+            }
+          },
+          "at": 1786609810.7870827
+        },
+        {
+          "seq": 34,
+          "type": "awaiting_approval",
+          "node": "issue_refund",
+          "payload": {
+            "state": {
+              "ticket": "I was charged twice, please refund",
+              "category": "refund_request",
+              "confidence": 0.9682,
+              "amount_usd": 240,
+              "order": {
+                "order_id": "A-88213",
+                "paid": true
+              }
+            }
+          },
+          "at": 1786609810.7900836
+        },
+        {
+          "seq": 35,
+          "type": "approval_granted",
+          "node": "issue_refund",
+          "payload": {
+            "by": "operator",
+            "at": 1786609810.979642
+          },
+          "at": 1786609810.979642
+        },
+        {
+          "seq": 36,
+          "type": "step_started",
+          "node": "issue_refund",
+          "payload": {},
+          "at": 1786609810.9876342
+        },
+        {
+          "seq": 37,
+          "type": "effect",
+          "node": "issue_refund",
+          "payload": {
+            "index": 0,
+            "label": "payments:refund",
+            "result": {
+              "receipt": "rf_9940809",
+              "status": "settled"
+            }
+          },
+          "at": 1786609810.990635
+        },
+        {
+          "seq": 38,
+          "type": "step_finished",
+          "node": "issue_refund",
+          "payload": {
+            "patch": {
+              "refund": {
+                "receipt": "rf_9940809",
+                "status": "settled"
+              }
+            }
+          },
+          "at": 1786609810.992633
+        },
+        {
+          "seq": 39,
+          "type": "step_started",
+          "node": "notify",
+          "payload": {},
+          "at": 1786609810.9956338
+        },
+        {
+          "seq": 40,
+          "type": "effect",
+          "node": "notify",
+          "payload": {
+            "index": 0,
+            "label": "email:send",
+            "result": {
+              "to": "customer@example.com",
+              "sent": true
+            }
+          },
+          "at": 1786609810.9986331
+        },
+        {
+          "seq": 41,
+          "type": "step_finished",
+          "node": "notify",
+          "payload": {
+            "patch": {
+              "notified": true
+            }
+          },
+          "at": 1786609811.000633
+        },
+        {
+          "seq": 42,
+          "type": "run_finished",
+          "node": null,
+          "payload": {
+            "state": {
+              "ticket": "I was charged twice, please refund",
+              "category": "refund_request",
+              "confidence": 0.9682,
+              "amount_usd": 240,
+              "order": {
+                "order_id": "A-88213",
+                "paid": true
+              },
+              "refund": {
+                "receipt": "rf_9940809",
+                "status": "settled"
+              },
+              "notified": true
+            }
+          },
+          "at": 1786609811.002634
+        }
+      ]
+    },
+    {
+      "runId": "ticket-2",
+      "status": "failed",
+      "completed": ["classify", "lookup_order"],
+      "nextNode": "issue_refund",
+      "state": {
+        "ticket": "I was charged twice, please refund",
+        "category": "refund_request",
+        "confidence": 0.939,
+        "amount_usd": 240,
+        "order": {
+          "order_id": "A-88213",
+          "paid": true
+        }
+      },
+      "events": [
+        {
+          "seq": 18,
+          "type": "run_started",
+          "node": null,
+          "payload": {
+            "input": {
+              "ticket": "I was charged twice, please refund"
+            }
+          },
+          "at": 1786609781.817062
+        },
+        {
+          "seq": 19,
+          "type": "step_started",
+          "node": "classify",
+          "payload": {},
+          "at": 1786609781.825065
+        },
+        {
+          "seq": 20,
+          "type": "effect",
+          "node": "classify",
+          "payload": {
+            "index": 0,
+            "label": "model:classify",
+            "result": {
+              "category": "refund_request",
+              "confidence": 0.939,
+              "amount_usd": 240
+            }
+          },
+          "at": 1786609781.8280475
+        },
+        {
+          "seq": 21,
+          "type": "step_finished",
+          "node": "classify",
+          "payload": {
+            "patch": {
+              "category": "refund_request",
+              "confidence": 0.939,
+              "amount_usd": 240
+            }
+          },
+          "at": 1786609781.8310533
+        },
+        {
+          "seq": 22,
+          "type": "step_started",
+          "node": "lookup_order",
+          "payload": {},
+          "at": 1786609781.833046
+        },
+        {
+          "seq": 23,
+          "type": "effect",
+          "node": "lookup_order",
+          "payload": {
+            "index": 0,
+            "label": "db:lookup_order",
+            "result": {
+              "order_id": "A-88213",
+              "paid": true
+            }
+          },
+          "at": 1786609781.8360627
+        },
+        {
+          "seq": 24,
+          "type": "step_finished",
+          "node": "lookup_order",
+          "payload": {
+            "patch": {
+              "order": {
+                "order_id": "A-88213",
+                "paid": true
+              }
+            }
+          },
+          "at": 1786609781.8380675
+        },
+        {
+          "seq": 25,
+          "type": "awaiting_approval",
+          "node": "issue_refund",
+          "payload": {
+            "state": {
+              "ticket": "I was charged twice, please refund",
+              "category": "refund_request",
+              "confidence": 0.939,
+              "amount_usd": 240,
+              "order": {
+                "order_id": "A-88213",
+                "paid": true
+              }
+            }
+          },
+          "at": 1786609781.8410497
+        },
+        {
+          "seq": 26,
+          "type": "approval_denied",
+          "node": "issue_refund",
+          "payload": {
+            "by": "operator",
+            "at": 1786609782.0410237
+          },
+          "at": 1786609782.0410237
+        }
+      ]
+    },
+    {
+      "runId": "ticket-1",
+      "status": "finished",
+      "completed": ["classify", "lookup_order", "issue_refund", "notify"],
+      "nextNode": "__end__",
+      "state": {
+        "ticket": "I was charged twice, please refund",
+        "category": "refund_request",
+        "confidence": 0.9229,
+        "amount_usd": 240,
+        "order": {
+          "order_id": "A-88213",
+          "paid": true
+        },
+        "refund": {
+          "receipt": "rf_1722770",
+          "status": "settled"
+        },
+        "notified": true
+      },
+      "events": [
+        {
+          "seq": 1,
+          "type": "run_started",
+          "node": null,
+          "payload": {
+            "input": {
+              "ticket": "I was charged twice, please refund"
+            }
+          },
+          "at": 1786609703.3449523
+        },
+        {
+          "seq": 2,
+          "type": "step_started",
+          "node": "classify",
+          "payload": {},
+          "at": 1786609703.3479524
+        },
+        {
+          "seq": 3,
+          "type": "effect",
+          "node": "classify",
+          "payload": {
+            "index": 0,
+            "label": "model:classify",
+            "result": {
+              "category": "refund_request",
+              "confidence": 0.9229,
+              "amount_usd": 240
+            }
+          },
+          "at": 1786609703.3504605
+        },
+        {
+          "seq": 4,
+          "type": "step_finished",
+          "node": "classify",
+          "payload": {
+            "patch": {
+              "category": "refund_request",
+              "confidence": 0.9229,
+              "amount_usd": 240
+            }
+          },
+          "at": 1786609703.3534675
+        },
+        {
+          "seq": 5,
+          "type": "step_started",
+          "node": "lookup_order",
+          "payload": {},
+          "at": 1786609703.3554678
+        },
+        {
+          "seq": 6,
+          "type": "effect",
+          "node": "lookup_order",
+          "payload": {
+            "index": 0,
+            "label": "db:lookup_order",
+            "result": {
+              "order_id": "A-88213",
+              "paid": true
+            }
+          },
+          "at": 1786609703.3584714
+        },
+        {
+          "seq": 7,
+          "type": "step_finished",
+          "node": "lookup_order",
+          "payload": {
+            "patch": {
+              "order": {
+                "order_id": "A-88213",
+                "paid": true
+              }
+            }
+          },
+          "at": 1786609703.3604865
+        },
+        {
+          "seq": 8,
+          "type": "awaiting_approval",
+          "node": "issue_refund",
+          "payload": {
+            "state": {
+              "ticket": "I was charged twice, please refund",
+              "category": "refund_request",
+              "confidence": 0.9229,
+              "amount_usd": 240,
+              "order": {
+                "order_id": "A-88213",
+                "paid": true
+              }
+            }
+          },
+          "at": 1786609703.3634875
+        },
+        {
+          "seq": 9,
+          "type": "approval_granted",
+          "node": "issue_refund",
+          "payload": {
+            "by": "operator",
+            "at": 1786609728.1081996
+          },
+          "at": 1786609728.1081996
+        },
+        {
+          "seq": 10,
+          "type": "step_started",
+          "node": "issue_refund",
+          "payload": {},
+          "at": 1786609728.1171987
+        },
+        {
+          "seq": 11,
+          "type": "effect",
+          "node": "issue_refund",
+          "payload": {
+            "index": 0,
+            "label": "payments:refund",
+            "result": {
+              "receipt": "rf_1722770",
+              "status": "settled"
+            }
+          },
+          "at": 1786609728.1202102
+        },
+        {
+          "seq": 12,
+          "type": "step_started",
+          "node": "issue_refund",
+          "payload": {},
+          "at": 1786609752.1074646
+        },
+        {
+          "seq": 13,
+          "type": "step_finished",
+          "node": "issue_refund",
+          "payload": {
+            "patch": {
+              "refund": {
+                "receipt": "rf_1722770",
+                "status": "settled"
+              }
+            }
+          },
+          "at": 1786609752.1164649
+        },
+        {
+          "seq": 14,
+          "type": "step_started",
+          "node": "notify",
+          "payload": {},
+          "at": 1786609752.1194625
+        },
+        {
+          "seq": 15,
+          "type": "effect",
+          "node": "notify",
+          "payload": {
+            "index": 0,
+            "label": "email:send",
+            "result": {
+              "to": "customer@example.com",
+              "sent": true
+            }
+          },
+          "at": 1786609752.1224627
+        },
+        {
+          "seq": 16,
+          "type": "step_finished",
+          "node": "notify",
+          "payload": {
+            "patch": {
+              "notified": true
+            }
+          },
+          "at": 1786609752.1244683
+        },
+        {
+          "seq": 17,
+          "type": "run_finished",
+          "node": null,
+          "payload": {
+            "state": {
+              "ticket": "I was charged twice, please refund",
+              "category": "refund_request",
+              "confidence": 0.9229,
+              "amount_usd": 240,
+              "order": {
+                "order_id": "A-88213",
+                "paid": true
+              },
+              "refund": {
+                "receipt": "rf_1722770",
+                "status": "settled"
+              },
+              "notified": true
+            }
+          },
+          "at": 1786609752.1274774
+        }
+      ]
+    }
+  ]
+}
