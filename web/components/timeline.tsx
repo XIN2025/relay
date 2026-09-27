@@ -16,7 +16,13 @@ function detail(e: RunEvent): string {
 }
 
 /** Render ordered journal events on a rail that exposes crash gaps. */
-export function Timeline({ events }: { events: RunEvent[] }) {
+export function Timeline({
+  events,
+  activeSeq,
+}: {
+  events: RunEvent[];
+  activeSeq?: number;
+}) {
   return (
     <ol className="relative">
       <span
@@ -27,7 +33,11 @@ export function Timeline({ events }: { events: RunEvent[] }) {
         const meta = EVENT_META[e.type];
         const text = detail(e);
         return (
-          <li key={e.seq} className="relative flex gap-4 py-2 pl-6">
+          <li
+            key={e.seq}
+            aria-current={e.seq === activeSeq ? "step" : undefined}
+            className="relative flex gap-4 rounded-lg py-2 pl-6 aria-[current=step]:bg-muted"
+          >
             <span
               aria-hidden
               className="absolute top-3.5 left-0 size-[15px] rounded-full border-2 border-background"

@@ -20,6 +20,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full`}
     >
       <body className="flex min-h-full flex-col font-sans antialiased">
@@ -39,6 +40,12 @@ export default function RootLayout({
             <span className="hidden font-mono text-xs text-muted-foreground sm:block">
               {runs.length} recorded runs
             </span>
+            <a
+              href="https://github.com/XIN2025/relay"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Source
+            </a>
           </div>
         </header>
 

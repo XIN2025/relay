@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { JournalScrubber } from "@/components/replay/journal-scrubber";
+import { RunItYourself } from "@/components/run-it-yourself";
 import { Timeline } from "@/components/timeline";
 import { executionCounts, graph, runById, runs } from "@/lib/runs";
 
@@ -90,7 +92,9 @@ export default function HomePage() {
 
       <section className="border-t border-border py-14">
         <div className="flex flex-wrap items-baseline justify-between gap-4">
-          <h2 className="text-2xl font-semibold tracking-tight">The graph</h2>
+          <h2 className="text-2xl font-semibold tracking-tight">
+            Walk through a run
+          </h2>
           <Link
             href="/runs"
             className="text-sm font-medium text-brand hover:underline"
@@ -98,29 +102,31 @@ export default function HomePage() {
             All {runs.length} runs
           </Link>
         </div>
-        <ol className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {graph.nodes.map((n) => (
-            <li
-              key={n.name}
-              className="rounded-xl border border-border p-4"
-              style={
-                n.requiresApproval
-                  ? { borderColor: "var(--event-approval)" }
-                  : undefined
-              }
-            >
-              <code className="font-mono text-sm font-medium">{n.name}</code>
-              {n.requiresApproval && (
-                <span className="ml-2 text-xs font-medium text-[var(--event-approval)]">
-                  holds
-                </span>
-              )}
-              <p className="mt-1.5 text-sm text-muted-foreground">
-                {n.description}
-              </p>
-            </li>
-          ))}
-        </ol>
+        <p className="mt-3 max-w-2xl text-muted-foreground">
+          A support agent: classify the ticket, look up the order, then refund
+          or decline. Press play, or drag through the journal, and watch the
+          engine rebuild the run from its events alone.
+        </p>
+        <div className="mt-8">
+          <JournalScrubber
+            graph={graph}
+            runs={[crashed, ...runs.filter((r) => r !== crashed)]}
+          />
+        </div>
+      </section>
+
+      <section className="border-t border-border py-14">
+        <h2 className="text-2xl font-semibold tracking-tight">
+          Run it yourself
+        </h2>
+        <p className="mt-3 max-w-2xl text-muted-foreground">
+          Python 3.11 or newer, standard library only. From the repository root
+          with <code className="font-mono">PYTHONPATH=src</code>. The
+          classifier&apos;s confidence is random on purpose, so about one ticket
+          in four is declined and never reaches the gate; start another id if
+          yours is.
+        </p>
+        <RunItYourself />
       </section>
 
       <section className="border-t border-border py-14">

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { FlowDiagram } from "@/components/flow/flow-diagram";
 import { Timeline } from "@/components/timeline";
-import { effectsOf, executionCounts, runById, runs } from "@/lib/runs";
+import { effectsOf, executionCounts, graph, runById, runs } from "@/lib/runs";
 
 export function generateStaticParams() {
   return runs.map((r) => ({ id: r.runId }));
@@ -40,6 +41,22 @@ export default async function RunPage({
           {run.completed.join(" -> ") || "no steps completed"}
         </p>
       </header>
+
+      <section className="border-t border-border py-12">
+        <h2 className="text-2xl font-semibold tracking-tight">
+          The route it took
+        </h2>
+        <div className="mt-6 rounded-xl border border-border p-3 sm:p-6">
+          <FlowDiagram
+            graph={graph}
+            progress={{
+              completed: run.completed,
+              nextNode: run.nextNode,
+              status: run.status,
+            }}
+          />
+        </div>
+      </section>
 
       <section className="border-t border-border py-12">
         <h2 className="text-2xl font-semibold tracking-tight">

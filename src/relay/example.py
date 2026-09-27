@@ -76,7 +76,11 @@ def after_lookup(state: State) -> str:
     return "issue_refund"
 
 
-graph.branch("lookup_order", after_lookup)
+graph.branch(
+    "lookup_order",
+    after_lookup,
+    {"issue_refund": "confident and paid", "decline": "low confidence or unpaid"},
+)
 graph.edge("issue_refund", "notify")
 graph.edge("notify", Graph.END)
 graph.edge("decline", Graph.END)

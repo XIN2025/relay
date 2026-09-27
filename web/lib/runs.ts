@@ -20,13 +20,25 @@ export interface RunEvent {
   at: number;
 }
 
+export type RunStatus = "running" | "awaiting_approval" | "finished" | "failed";
+
+/** The engine's fold of a run's journal through one event. */
+export interface ReplayFrame {
+  seq: number;
+  status: RunStatus;
+  nextNode: string;
+  completed: string[];
+  state: Record<string, unknown>;
+}
+
 export interface Run {
   runId: string;
-  status: "running" | "awaiting_approval" | "finished" | "failed";
+  status: RunStatus;
   completed: string[];
   nextNode: string;
   state: Record<string, unknown>;
   events: RunEvent[];
+  replay: ReplayFrame[];
 }
 
 export interface GraphNode {
@@ -35,10 +47,21 @@ export interface GraphNode {
   requiresApproval: boolean;
 }
 
-export const data = raw as {
-  graph: { start: string; nodes: GraphNode[] };
-  runs: Run[];
-};
+export interface GraphEdge {
+  from: string;
+  to: string;
+  /** The branch condition; empty for an unconditional edge. */
+  when: string;
+}
+
+export interface Graph {
+  start: string;
+  end: string;
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+}
+
+export const data = raw as { graph: Graph; runs: Run[] };
 export const runs = data.runs;
 export const graph = data.graph;
 

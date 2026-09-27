@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 from .engine import Engine, fold
@@ -97,6 +98,13 @@ def cmd_export(args: argparse.Namespace) -> int:
                  "payload": e.payload, "at": e.at}
                 for e in events
             ],
+            # The engine's own fold after every event: `relay replay --at seq`.
+            "replay": [
+                {"seq": e.seq, "status": r.status, "nextNode": r.next_node,
+                 "completed": r.completed, "state": r.state}
+                for i, e in enumerate(events)
+                for r in [fold(engine.graph, events[: i + 1])]
+            ],
         })
     payload = {
         "graph": {
@@ -105,6 +113,11 @@ def cmd_export(args: argparse.Namespace) -> int:
                 {"name": n.name, "description": n.description,
                  "requiresApproval": n.requires_approval}
                 for n in engine.graph.nodes.values()
+            ],
+            "end": engine.graph.END,
+            "edges": [
+                {"from": frm, "to": to, "when": when}
+                for frm, to, when in engine.graph.edges()
             ],
         },
         "runs": runs,
@@ -139,7 +152,13 @@ def main(argv: list[str] | None = None) -> int:
     e.add_argument("--out", default="web/data/runs.json"); e.set_defaults(fn=cmd_export)
 
     args = p.parse_args(argv)
-    return int(args.fn(args))
+    try:
+        return int(args.fn(args))
+    except ValueError as err:
+        # Engine refusals (e.g. approving a run that never reached the gate)
+        # are user errors, not crashes.
+        print(f"  relay: {err}", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

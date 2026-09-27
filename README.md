@@ -13,6 +13,10 @@ PYTHONPATH=src python -m relay replay ticket-1 --at 7
 cd web && pnpm install && pnpm dev                 # the run inspector
 ```
 
+Python 3.11+, standard library only. The classifier's confidence is random on
+purpose, so about one ticket in four is declined and never reaches the gate;
+`approve` then says so, and another run id will hold.
+
 ## The claim, and the proof
 
 Kill the process **inside** the step that issues a refund, after the money has
@@ -67,7 +71,7 @@ src/relay/
   engine.py     fold + resume + replay + effect recording
   example.py    the refund agent used throughout
   cli.py        start / approve / deny / show / replay / export
-web/            run inspector: the graph, every run, every journal
+web/            run inspector: the graph, a step-through of every run's journal
 ```
 
 ## What this is not

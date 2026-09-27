@@ -34,6 +34,8 @@ class Graph:
     START: str
     nodes: dict[str, Node] = field(default_factory=dict)
     routes: dict[str, Callable[[State], str]] = field(default_factory=dict)
+    # Every node a route may lead to, with the condition that picks it.
+    targets: dict[str, dict[str, str]] = field(default_factory=dict)
 
     END = "__end__"
 
@@ -53,9 +55,28 @@ class Graph:
 
     def edge(self, frm: str, to: str) -> None:
         self.routes[frm] = lambda _state, _to=to: _to
+        self.targets[frm] = {to: ""}
 
-    def branch(self, frm: str, chooser: Callable[[State], str]) -> None:
-        self.routes[frm] = chooser
+    def branch(
+        self, frm: str, chooser: Callable[[State], str], targets: dict[str, str]
+    ) -> None:
+        """Route on state. `targets` maps each possible next node to its condition."""
+
+        def route(state: State) -> str:
+            to = chooser(state)
+            if to not in targets:
+                raise ValueError(f"branch from {frm!r} chose undeclared {to!r}")
+            return to
+
+        self.routes[frm] = route
+        self.targets[frm] = dict(targets)
+
+    def edges(self) -> list[tuple[str, str, str]]:
+        return [
+            (frm, to, when)
+            for frm, tos in self.targets.items()
+            for to, when in tos.items()
+        ]
 
     def next_after(self, node: str, state: State) -> str:
         route = self.routes.get(node)
@@ -69,12 +90,9 @@ class Graph:
         for name in self.nodes:
             if name not in self.routes:
                 problems.append(f"node {name!r} has no outgoing route")
-        for frm, route in self.routes.items():
+        for frm, to, _ in self.edges():
             if frm not in self.nodes:
                 problems.append(f"route from undefined node {frm!r}")
-            # Only static edges can be checked without executing user code.
-            if getattr(route, "__name__", "") == "<lambda>":
-                target = route({})
-                if target != self.END and target not in self.nodes:
-                    problems.append(f"edge {frm!r} -> {target!r} points nowhere")
+            if to != self.END and to not in self.nodes:
+                problems.append(f"edge {frm!r} -> {to!r} points nowhere")
         return problems
